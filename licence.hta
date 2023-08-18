@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Licence System</title>
+    <HTA:APPLICATION 
+        APPLICATIONNAME="LoginApp"
+        SCROLL="no"
+        SINGLEINSTANCE="yes"
+    />
+    <script type="text/vbscript">
+        Dim loggedIn
+
+        Sub checkLogin
+            Dim login, password
+            Dim xhr
+
+            login = Trim(document.getElementById("login").value)
+            password = Trim(document.getElementById("password").value)
+
+            Set xhr = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+            xhr.open "GET", "https://example.com/login_data.txt", False
+            xhr.send
+
+            If xhr.status = 200 Then
+                Dim lines, i, parts, storedLogin, storedPassword
+                lines = Split(xhr.responseText, vbNewLine)
+
+                For i = LBound(lines) To UBound(lines)
+                    parts = Split(lines(i), ";")
+                    storedLogin = Trim(parts(0))
+                    storedPassword = Trim(parts(1))
+                    
+                    If login = storedLogin And password = storedPassword Then
+                        loggedIn = True
+                        SwitchToDashboard
+                        Exit Sub
+                    End If
+                Next
+
+                MsgBox "Błędny login lub hasło."
+            Else
+                MsgBox "Nie można pobrać danych logowania."
+            End If
+        End Sub
+
+        Sub SwitchToDashboard
+            document.getElementById("loginContainer").style.display = "none"
+            document.getElementById("dashboardContainer").style.display = "block"
+        End Sub
+
+        Sub Logout
+            loggedIn = False
+            document.getElementById("loginContainer").style.display = "block"
+            document.getElementById("dashboardContainer").style.display = "none"
+        End Sub
+    </script>
+</head>
+<body>
+    <div id="loginContainer">
+        <h1>Login</h1>
+        <input type="text" id="login" placeholder="Login"><br>
+        <input type="password" id="password" placeholder="password"><br>
+        <button onclick="checkLogin()">login</button>
+    </div>
+<section>
+    <div id="dashboardContainer" style="display:none;">
+        <h1>Dashboard</h1>
+        <!-- Tutaj umieść swoje przyciski i zawartość interfejsu -->
+        <button onclick="Logout()">logout</button>
+    </div>
+    </section>
+</body>
+</html>
